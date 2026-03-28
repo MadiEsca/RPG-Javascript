@@ -15,21 +15,18 @@ const cenarios = {
         nome: 'Cidade Urbana',
         bossNome: 'Luiza',
         bossTitulo: 'A mordedora urbana',
-        vidaBoss: 150,
         background: 'assets/City1.png'
     },
     'assets/postapocalypse4.png': {
         nome: 'Pós-Apocalipse Deserto',
         bossNome: 'Luiza',
         bossTitulo: 'A sobrevivente',
-        vidaBoss: 200,
         background: 'assets/postapocalypse4.png'
     },
     'assets/postapocalypse1.png': {
         nome: 'Pós-Apocalipse Ruínas',
         bossNome: 'Luiza',
         bossTitulo: 'A rainha das ruínas',
-        vidaBoss: 180,
         background: 'assets/postapocalypse1.png'
     }
 };
@@ -84,10 +81,10 @@ class personagem {
         if(this.en == 100) {
             alvo.hp -= 15;
             this.en = 0;
-            return 'Boss usou sua habilidade'; //Mensagem do boss
+            return `${boss.nome} usou sua habilidade`; //Mensagem do boss
         } else {
             this.en += 50;
-            return 'Boss carregou o ataque'; //Mensagem do boss
+            return `${boss.nome} carregou o ataque`; //Mensagem do boss
         }
     }
 }
@@ -101,7 +98,6 @@ class skill {
         this.energia = energia;
     }
 }
-
 //Campos do formulário
 const card_cadastro = document.getElementById("card-cadastro");
 const formulario_cadastro = document.getElementById("formulario-cadastro");
@@ -124,7 +120,7 @@ formulario_cadastro.addEventListener("submit", (e)=>{
 
     //Preenchendo as informações do personagem
     heroi = new personagem(`${heroi_nome.value}`, `${heroi_titulo.value}`, VIDA_HEROI, MANA_HEROI, ENERGIA_HEROI);
-    boss = new personagem(cenario.bossNome, cenario.bossTitulo, cenario.vidaBoss, 0, ENERGIA_BOSS);
+    boss = new personagem(cenario.bossNome, cenario.bossTitulo, VIDA_BOSS, 0, ENERGIA_BOSS);
 
     // Aplicar o background do cenário no jogo
     const tela = document.getElementById('tela');
@@ -137,58 +133,71 @@ formulario_cadastro.addEventListener("submit", (e)=>{
     atualizarTela();
 })
 
-
-
-
-
-
-function atualizarTela(mensagem){
+function atualizarTela(msg_heroi, msg_boss){
     /**
      * Chamar sempre que algo precisar ser atualizado na tela
     */
 
-   const heroi_nome = document.getElementById("heroi-nome-display");
-   const heroi_descricao = document.getElementById("heroi-desc-display");
-   let heroi_vida = document.getElementById("heroi-vida-display");
-   let heroi_energia = document.getElementById("heroi-energia-display");
-   let heroi_mana = document.getElementById("heroi-mana-display");
+    const heroi_nome = document.getElementById("heroi-nome-display");
+    const heroi_descricao = document.getElementById("heroi-desc-display");
+    let heroi_vida = document.getElementById("heroi-vida-display");
+    let heroi_energia = document.getElementById("heroi-energia-display");
+    let heroi_mana = document.getElementById("heroi-mana-display");
    
-   heroi_nome.innerText = `${heroi.nome}`;
-   heroi_descricao.innerText = `${heroi.titulo}`;
-   heroi_vida.value = heroi.hp;
-   heroi_mana.value = heroi.mp;
-   heroi_energia.value = heroi.en;
+    heroi_nome.innerText = `${heroi.nome}`;
+    heroi_descricao.innerText = `${heroi.titulo}`;
+    heroi_vida.value = heroi.hp;
+    heroi_mana.value = heroi.mp;
+    heroi_energia.value = heroi.en;
    
-   const boss_nome = document.getElementById("boss-nome-display");
-   const boss_descricao = document.getElementById("boss-desc-display");
-   let boss_vida = document.getElementById("boss-vida-display");
-   let boss_energia = document.getElementById("boss-energia-display");
+    const boss_nome = document.getElementById("boss-nome-display");
+    const boss_descricao = document.getElementById("boss-desc-display");
+    let boss_vida = document.getElementById("boss-vida-display");
+    let boss_energia = document.getElementById("boss-energia-display");
    
-   boss_nome.innerText = `${boss.nome}`;
-   boss_descricao.innerText = ` ${boss.titulo}`;
-   boss_vida.max = boss.hp; // Define o max baseado na vida inicial
-   boss_vida.value = boss.hp;
-   boss_energia.value = boss.en;
-    
+    boss_nome.innerText = `${boss.nome}`;
+    boss_descricao.innerText = ` ${boss.titulo}`;
+    boss_vida.value = boss.hp;
+    boss_energia.value = boss.en;
+
+
     if (heroi.hp <= 0) {
-        alert(`A heroina ${heroi.nome} perdeu para a ${boss.nome}`);
-        //Processo de "troca de telas"
-        card_cadastro.hidden = false;
-        card_jogo.hidden = true;
-        formulario_cadastro.reset();
-    } else if (boss.hp <= 0){
-        
-        alert("O heroi venceu");
-        
-        document.getElementById("tela").innerHTML = "<h1>Você venceu</h1>";
-        
+
+        card_jogo.hidden = true; //Escondendo a tela de jogo
+        let texto = document.createElement("main"); //Criando um elemento do tipo main
+        texto.innerHTML = `<h1>A heroina ${heroi.nome} perdeu para a ${boss.nome}</h1>` //Inserindo o conteúdo da tag
+        texto.classList.add("card", "container", "py-5", "mt-5", "bg-danger") //inserindo classes de personalização na tag
+        texto.style.textAlign = "center"; //Alinhando o texto
+        document.body.appendChild(texto); //Inserindo a tag main no body
+
         setTimeout(()=>{
             //Processo de "troca de telas"
             card_cadastro.hidden = false;
-            card_jogo.hidden = true;
             formulario_cadastro.reset();
-        }, 5000)
+            document.body.removeChild(texto);
+        }, 3000)
+
+    } else if (boss.hp <= 0){
+
+        card_jogo.hidden = true;
+        let texto = document.createElement("main"); //Criando um elemento do tipo main
+        texto.innerHTML = "<h1>Você venceu</h1>" //Inserindo o conteúdo da tag
+        texto.classList.add("card", "container", "py-5", "mt-5") //inserindo classes de personalização na tag
+        texto.style.textAlign = "center"; //Alinhando o texto
+        document.body.appendChild(texto); //Inserindo a tag main no body
+
+        setTimeout(()=>{
+            //Processo de "troca de telas"
+            card_cadastro.hidden = false;
+            formulario_cadastro.reset();
+            document.body.removeChild(texto);
+        }, 3000)
     }
+
+    document.getElementById("log-hero").textContent = msg_heroi;
+    document.getElementById("log-boss").textContent = msg_boss;
+
+
 }
 
 // Criação das habilidades e botões
@@ -206,8 +215,8 @@ listaHabilidades.forEach(habilidade => {
     container.appendChild(btn);
 
     btn.addEventListener('click', ()=>{
-        heroi.atacar(boss, habilidade);
-        boss.boss_atacar(heroi)
-        atualizarTela();
+        let msg_heroi = heroi.atacar(boss, habilidade);
+        let msg_boss = boss.boss_atacar(heroi);
+        atualizarTela(msg_heroi, msg_boss);
     })
 });
